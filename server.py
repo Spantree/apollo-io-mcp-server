@@ -56,5 +56,9 @@ async def organization_job_postings(organization_id: str) -> Optional[dict]:
     result = await apollo_client.organization_job_postings(organization_id)
     return result.model_dump() if result else None
 
-# if __name__ == "__main__":
-#     mcp.run(transport="stdio")
+def main():
+    """Entry point for the MCP server."""
+    mcp.run(transport="stdio")
+
+if __name__ == "__main__":
+    main()
