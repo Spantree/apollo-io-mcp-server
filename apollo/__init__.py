@@ -3,3 +3,4 @@ from .organization_search import *
 from .organization import *
 from .people_search import *
 from .people import *
+from .contacts import *
