@@ -230,5 +230,33 @@ async def contact_update(
     result = await apollo_client.contact_update(contact_id=contact_id, **fields)
     return result.model_dump() if result else None
 
+@mcp.tool()
+async def labels_list(modality: Optional[str] = None) -> Optional[dict]:
+    """
+    List all labels/lists in your Apollo account.
+
+    Labels (called "Lists" in Apollo UI) are used to organize contacts,
+    accounts, and emailer campaigns. Each label has a modality field
+    indicating what type of entity it contains.
+
+    This endpoint requires a master API key. Regular API keys will fail.
+
+    Args:
+        modality: Filter by modality type. Options:
+                 - "contacts": Lists of contacts/people
+                 - "accounts": Lists of companies/organizations
+                 - "emailer_campaigns": Lists for email campaigns
+                 If None, returns all labels across all modalities.
+
+    Returns:
+        Dict with 'labels' list containing label objects (id, name, modality,
+        cached_count, etc.), or None on error
+
+    Reference:
+        https://docs.apollo.io/reference/get-a-list-of-all-lists
+    """
+    result = await apollo_client.labels_list(modality=modality)
+    return result.model_dump() if result else None
+
 # if __name__ == "__main__":
 #     mcp.run(transport="stdio")

@@ -27,6 +27,7 @@ The following functionalities are exposed as MCP tools:
 -   `contacts_search`: Search contacts saved to YOUR Apollo CRM (not global search). Returns `contact_id` needed for updates.
 -   `contact_create`: Create a new contact in your Apollo CRM with optional list assignment.
 -   `contact_update`: Update an existing contact in your Apollo CRM, including managing list membership.
+-   `labels_list`: List all labels/lists in your Apollo account, with optional filtering by modality (contacts, accounts, emailer_campaigns). **Requires master API key.**
 
 **Note on Lists vs Labels**: Apollo's API uses the term "labels" (via `label_names` parameter), but these appear as "Lists" in the Apollo UI. They are the same thing. Lists can be automatically created when you assign contacts to them.
 
@@ -78,6 +79,16 @@ contact_update(
 2. Merge with new list names
 3. Pass complete list to `contact_update`
 
+#### List Labels
+List all labels/lists in your Apollo account:
+```python
+labels_list()  # Get all labels (contacts, accounts, emailer_campaigns)
+labels_list(modality="contacts")  # Get only contact lists
+labels_list(modality="accounts")  # Get only account lists
+```
+
+**Note**: This endpoint requires a **master API key**. Regular API keys will receive a 403 error.
+
 ## Data Models
 
 The `apollo/` directory contains the data models for the Apollo.io API. These models are used to define the input and output of the MCP tools.
@@ -88,6 +99,7 @@ The `apollo/` directory contains the data models for the Apollo.io API. These mo
 - `apollo/organization_search.py`: Defines the data models for the Organization Search endpoint.
 - `apollo/organization_job_postings.py`: Defines the data models for the Organization Job Postings endpoint.
 - `apollo/contacts.py`: Defines the data models for contact write operations (search, create, update).
+- `apollo/labels.py`: Defines the data models for labels/lists operations.
 
 ## Testing
 

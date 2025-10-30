@@ -212,6 +212,42 @@ class ApolloClient:
                 print(f"Error: {response.status_code} - {response.text}")
                 return None
 
+    async def labels_list(
+        self,
+        modality: Optional[str] = None
+    ) -> Optional[LabelListResponse]:
+        """
+        List all labels/lists in your Apollo account.
+        https://docs.apollo.io/reference/get-a-list-of-all-lists
+
+        The API returns all labels across all modalities (contacts, accounts, emailer_campaigns).
+        Client-side filtering by modality is performed if specified.
+
+        Args:
+            modality: Filter by modality ("contacts", "accounts", "emailer_campaigns").
+                     If None, returns all labels.
+
+        Returns:
+            LabelListResponse with list of labels
+
+        Note:
+            This endpoint requires a master API key. Regular API keys will receive a 403 error.
+        """
+        url = f"{self.base_url}/labels"
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=self.headers)
+            if response.status_code == 200:
+                labels_data = response.json()
+                # API returns array directly, wrap in LabelListResponse
+                # Filter by modality if specified
+                if modality:
+                    labels_data = [label for label in labels_data if label.get('modality') == modality]
+                return LabelListResponse(labels=[Label(**label) for label in labels_data])
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+                return None
+
 # Example usage (you'll need to set the APOLLO_IO_API_KEY environment variable)
 async def main():
     import os

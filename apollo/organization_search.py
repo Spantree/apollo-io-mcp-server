@@ -21,9 +21,9 @@ class Breadcrumb(BaseModel):
     display_name: str = Field(description="display_name")
 
 class PrimaryPhone(BaseModel):
-    number: str = Field(description="number")
-    source: str = Field(description="source")
-    sanitized_number: str = Field(description="sanitized_number")
+    number: Optional[str] = Field(default=None, description="number")
+    source: Optional[str] = Field(default=None, description="source")
+    sanitized_number: Optional[str] = Field(default=None, description="sanitized_number")
 
 class Organization(BaseModel):
     id: str = Field(description="id")
@@ -69,4 +69,4 @@ class OrganizationSearchResponse(BaseModel):
     organizations: Optional[List[Organization]] = Field(default=None, description="organizations")
     model_ids: Optional[List[str]] = Field(default=None, description="model_ids")
     num_fetch_result: Optional[str] = Field(default=None, description="num_fetch_result")
-    derived_params: Optional[str] = Field(default=None, description="derived_params")
+    derived_params: Optional[Any] = Field(default=None, description="derived_params")

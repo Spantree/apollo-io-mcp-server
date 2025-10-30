@@ -355,3 +355,95 @@ CONTACT_UPDATE_RESPONSE = {
         }
     ]
 }
+
+# Labels list response - all labels (mixed modalities)
+LABELS_LIST_ALL = [
+    {
+        "id": "label_contact_1",
+        "name": "Sales Prospects",
+        "modality": "contacts",
+        "cached_count": 42,
+        "team_id": "team_123",
+        "user_id": "user_123",
+        "created_at": "2024-01-15T10:00:00.000Z",
+        "updated_at": "2024-01-20T15:30:00.000Z"
+    },
+    {
+        "id": "label_account_1",
+        "name": "Enterprise Clients",
+        "modality": "accounts",
+        "cached_count": 15,
+        "team_id": "team_123",
+        "user_id": "user_123",
+        "created_at": "2024-01-10T09:00:00.000Z",
+        "updated_at": "2024-01-18T12:00:00.000Z"
+    },
+    {
+        "id": "label_contact_2",
+        "name": "MCP Test",
+        "modality": "contacts",
+        "cached_count": 2,
+        "team_id": "team_123",
+        "user_id": "user_123",
+        "created_at": "2025-10-30T20:16:01.248Z",
+        "updated_at": "2025-10-30T20:17:16.171Z"
+    },
+    {
+        "id": "label_account_2",
+        "name": "Target Accounts",
+        "modality": "accounts",
+        "cached_count": 8,
+        "team_id": "team_123",
+        "user_id": "user_123",
+        "created_at": "2024-02-01T11:00:00.000Z",
+        "updated_at": "2024-02-05T14:30:00.000Z"
+    }
+]
+
+# Labels list response - contacts only
+LABELS_LIST_CONTACTS = [
+    {
+        "id": "label_contact_1",
+        "name": "Sales Prospects",
+        "modality": "contacts",
+        "cached_count": 42,
+        "team_id": "team_123",
+        "user_id": "user_123",
+        "created_at": "2024-01-15T10:00:00.000Z",
+        "updated_at": "2024-01-20T15:30:00.000Z"
+    },
+    {
+        "id": "label_contact_2",
+        "name": "MCP Test",
+        "modality": "contacts",
+        "cached_count": 2,
+        "team_id": "team_123",
+        "user_id": "user_123",
+        "created_at": "2025-10-30T20:16:01.248Z",
+        "updated_at": "2025-10-30T20:17:16.171Z"
+    }
+]
+
+# Labels list response - accounts only
+LABELS_LIST_ACCOUNTS = [
+    {
+        "id": "label_account_1",
+        "name": "Enterprise Clients",
+        "modality": "accounts",
+        "cached_count": 15,
+        "team_id": "team_123",
+        "user_id": "user_123",
+        "created_at": "2024-01-10T09:00:00.000Z",
+        "updated_at": "2024-01-18T12:00:00.000Z"
+    },
+    {
+        "id": "label_account_2",
+        "name": "Target Accounts",
+        "modality": "accounts",
+        "cached_count": 8,
+        "team_id": "team_123",
+        "user_id": "user_123",
+        "created_at": "2024-02-01T11:00:00.000Z",
+        "updated_at": "2024-02-05T14:30:00.000Z"
+    }
+]
