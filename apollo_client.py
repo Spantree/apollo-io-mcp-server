@@ -28,6 +28,20 @@ class ApolloClient:
                 print(f"Error: {response.status_code} - {response.text}")
                 return None
 
+    async def people_bulk_enrichment(self, query: BulkPeopleEnrichmentQuery) -> Optional[BulkPeopleEnrichmentResponse]:
+        """
+        Use the Bulk People Enrichment endpoint to enrich data for up to 10 people.
+        https://docs.apollo.io/reference/bulk-people-enrichment
+        """
+        url = f"{self.base_url}/people/bulk_match"
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, json=query.model_dump(), headers=self.headers)
+            if response.status_code == 200:
+                return BulkPeopleEnrichmentResponse(**response.json())
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+                return None
+
     async def organization_enrichment(self, query: OrganizationEnrichmentQuery) -> Optional[OrganizationEnrichmentResponse]:
         """
         Use the Organization Enrichment endpoint to enrich data for 1 company.
@@ -272,6 +286,189 @@ class ApolloClient:
             response = await client.post(url, json=data, headers=self.headers)
             if response.status_code == 200:
                 return ContactBulkUpdateResponse(**response.json())
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+                return None
+
+    async def account_search(
+        self,
+        query: Optional[str] = None,
+        label_ids: Optional[List[str]] = None,
+        page: int = 1,
+        per_page: int = 25
+    ) -> Optional[AccountSearchResponse]:
+        """
+        Search accounts saved to your Apollo CRM.
+        https://docs.apollo.io/reference/search-for-accounts
+
+        Args:
+            query: Search query (matches name, domain, etc.)
+            label_ids: Filter by list IDs (lists are called 'labels' in Apollo API)
+            page: Page number (default: 1)
+            per_page: Results per page (default: 25, max: 100)
+
+        Returns:
+            AccountSearchResponse with accounts and pagination info
+        """
+        url = f"{self.base_url}/accounts/search"
+        params = {
+            "page": page,
+            "per_page": min(per_page, 100)  # Cap at 100 per API docs
+        }
+        if query:
+            params["q"] = query
+        if label_ids:
+            params["account_label_ids[]"] = label_ids
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, params=params, headers=self.headers)
+            if response.status_code == 200:
+                return AccountSearchResponse(**response.json())
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+                return None
+
+    async def account_create(
+        self,
+        name: str,
+        domain: Optional[str] = None,
+        owner_id: Optional[str] = None,
+        account_stage_id: Optional[str] = None,
+        phone: Optional[str] = None,
+        raw_address: Optional[str] = None,
+        typed_custom_fields: Optional[Dict[str, Any]] = None,
+        label_names: Optional[List[str]] = None
+    ) -> Optional[AccountCreateResponse]:
+        """
+        Create a new account in your Apollo CRM.
+        https://docs.apollo.io/reference/create-an-account
+
+        Requires master API key.
+
+        Args:
+            name: Account name (required)
+            domain: Domain name without www (e.g., "apollo.io")
+            owner_id: Apollo user ID for account owner
+            account_stage_id: Apollo ID for account stage
+            phone: Primary phone number
+            raw_address: Corporate location
+            typed_custom_fields: Custom fields data
+            label_names: List names to add account to
+
+        Returns:
+            AccountCreateResponse with created account including account_id
+        """
+        url = f"{self.base_url}/accounts"
+        data = {"name": name}
+
+        if domain:
+            data["domain"] = domain
+        if owner_id:
+            data["owner_id"] = owner_id
+        if account_stage_id:
+            data["account_stage_id"] = account_stage_id
+        if phone:
+            data["phone"] = phone
+        if raw_address:
+            data["raw_address"] = raw_address
+        if typed_custom_fields:
+            data["typed_custom_fields"] = typed_custom_fields
+        if label_names:
+            data["label_names"] = label_names
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, json=data, headers=self.headers)
+            if response.status_code == 200:
+                return AccountCreateResponse(**response.json())
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+                return None
+
+    async def account_update(
+        self,
+        account_id: str,
+        **fields
+    ) -> Optional[AccountUpdateResponse]:
+        """
+        Update an existing account in your Apollo CRM.
+        https://docs.apollo.io/reference/update-an-account
+
+        Requires master API key.
+
+        Only fields provided will be updated. Omitted fields remain unchanged.
+
+        Args:
+            account_id: Apollo account ID
+            **fields: Fields to update (name, domain, owner_id, etc.)
+
+        Returns:
+            AccountUpdateResponse with updated account
+
+        Note:
+            label_names REPLACES the account's lists entirely.
+        """
+        url = f"{self.base_url}/accounts/{account_id}"
+        # Filter out None values to only update provided fields
+        data = {k: v for k, v in fields.items() if v is not None}
+
+        async with httpx.AsyncClient() as client:
+            response = await client.patch(url, json=data, headers=self.headers)
+            if response.status_code == 200:
+                return AccountUpdateResponse(**response.json())
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+                return None
+
+    async def account_bulk_create(
+        self,
+        accounts: List[Dict]
+    ) -> Optional[AccountBulkCreateResponse]:
+        """
+        Bulk create up to 100 accounts in your Apollo CRM.
+        https://docs.apollo.io/reference/bulk-create-accounts
+
+        Requires master API key.
+
+        Args:
+            accounts: List of account dictionaries (max 100)
+
+        Returns:
+            AccountBulkCreateResponse with created_accounts and existing_accounts arrays
+        """
+        url = f"{self.base_url}/accounts/bulk_create"
+        data = {"accounts": accounts[:100]}  # Cap at 100 per API docs
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, json=data, headers=self.headers)
+            if response.status_code == 200:
+                return AccountBulkCreateResponse(**response.json())
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+                return None
+
+    async def account_bulk_update(
+        self,
+        accounts: List[Dict]
+    ) -> Optional[AccountBulkUpdateResponse]:
+        """
+        Bulk update up to 100 accounts in your Apollo CRM.
+        https://docs.apollo.io/reference/bulk-update-accounts
+
+        Requires master API key.
+
+        Args:
+            accounts: List of account dictionaries (max 100), each with 'id' field
+
+        Returns:
+            AccountBulkUpdateResponse with updated accounts array
+        """
+        url = f"{self.base_url}/accounts/bulk_update"
+        data = {"accounts": accounts[:100]}  # Cap at 100 per API docs
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, json=data, headers=self.headers)
+            if response.status_code == 200:
+                return AccountBulkUpdateResponse(**response.json())
             else:
                 print(f"Error: {response.status_code} - {response.text}")
                 return None
