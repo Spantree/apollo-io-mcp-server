@@ -84,7 +84,7 @@ class ApolloClient:
                 print(f"Error: {response.status_code} - {response.text}")
                 return None
 
-    async def contacts_search(
+    async def contact_search(
         self,
         query: Optional[str] = None,
         label_ids: Optional[List[str]] = None,

@@ -62,7 +62,7 @@ async def organization_job_postings(organization_id: str) -> Optional[dict]:
     return result.model_dump() if result else None
 
 @mcp.tool()
-async def contacts_search(
+async def contact_search(
     query: Optional[str] = None,
     label_ids: Optional[List[str]] = None,
     page: int = 1,
@@ -85,7 +85,7 @@ async def contacts_search(
     Returns:
         Dict with 'contacts' list and 'pagination' info, or None on error
     """
-    result = await apollo_client.contacts_search(
+    result = await apollo_client.contact_search(
         query=query,
         label_ids=label_ids,
         page=page,

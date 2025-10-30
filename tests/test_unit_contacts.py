@@ -17,7 +17,7 @@ from tests.fixtures import (
 
 
 @respx.mock
-async def test_contacts_search_no_results_unit():
+async def test_contact_search_no_results_unit():
     """
     Test searching for contacts with no results (unit test with mocked response).
 
@@ -31,7 +31,7 @@ async def test_contacts_search_no_results_unit():
     client = ApolloClient(api_key="test_api_key")
 
     # Search for contacts
-    result = await client.contacts_search(
+    result = await client.contact_search(
         query="nonexistentcontact@example.com",
         page=1,
         per_page=10
@@ -50,7 +50,7 @@ async def test_contacts_search_no_results_unit():
 
 
 @respx.mock
-async def test_contacts_search_with_results_unit():
+async def test_contact_search_with_results_unit():
     """
     Test searching for contacts with results (unit test with mocked response).
 
@@ -64,7 +64,7 @@ async def test_contacts_search_with_results_unit():
     client = ApolloClient(api_key="test_api_key")
 
     # Search for contacts
-    result = await client.contacts_search(
+    result = await client.contact_search(
         query="test",
         page=1,
         per_page=5
@@ -177,9 +177,9 @@ async def test_contact_update_unit():
 
 
 @respx.mock
-async def test_contacts_search_pagination_unit():
+async def test_contact_search_pagination_unit():
     """
-    Test contacts search with pagination parameters (unit test with mocked response).
+    Test contact search with pagination parameters (unit test with mocked response).
 
     Validates that pagination structure is correctly handled.
     """
@@ -191,7 +191,7 @@ async def test_contacts_search_pagination_unit():
     client = ApolloClient(api_key="test_api_key")
 
     # Search with pagination
-    result = await client.contacts_search(
+    result = await client.contact_search(
         query="test",
         page=1,
         per_page=5
