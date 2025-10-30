@@ -119,3 +119,74 @@ class ContactUpdateResponse(BaseModel):
     """Response from contact update endpoint."""
 
     contact: Any = Field(description="Updated contact")
+
+
+class ContactBulkItem(BaseModel):
+    """Contact data for bulk create operation."""
+
+    first_name: str = Field(description="Contact's first name (required)")
+    last_name: str = Field(description="Contact's last name (required)")
+    email: Optional[str] = Field(default=None, description="Email address")
+    organization_name: Optional[str] = Field(default=None, description="Company name")
+    title: Optional[str] = Field(default=None, description="Job title")
+    label_names: Optional[List[str]] = Field(
+        default=None, description="List names to add contact to"
+    )
+    city: Optional[str] = Field(default=None, description="City")
+    state: Optional[str] = Field(default=None, description="State/province")
+    country: Optional[str] = Field(default=None, description="Country code")
+    linkedin_url: Optional[str] = Field(default=None, description="LinkedIn URL")
+
+
+class ContactBulkCreateRequest(BaseModel):
+    """Request for bulk create contacts endpoint (up to 100 contacts)."""
+
+    contacts: List[ContactBulkItem] = Field(
+        description="Array of contact objects to create (max 100)", max_length=100
+    )
+
+
+class ContactBulkCreateResponse(BaseModel):
+    """Response from bulk create contacts endpoint."""
+
+    created_contacts: List[Any] = Field(
+        description="Array of newly created contacts"
+    )
+    existing_contacts: List[Any] = Field(
+        description="Array of existing contacts that matched (not updated)"
+    )
+
+
+class ContactBulkUpdateItem(BaseModel):
+    """Contact data for bulk update operation."""
+
+    id: str = Field(description="Contact ID (required for update)")
+    first_name: Optional[str] = Field(default=None, description="Update first name")
+    last_name: Optional[str] = Field(default=None, description="Update last name")
+    email: Optional[str] = Field(default=None, description="Update email")
+    organization_name: Optional[str] = Field(default=None, description="Update company")
+    title: Optional[str] = Field(default=None, description="Update job title")
+    label_names: Optional[List[str]] = Field(
+        default=None, description="Update list membership (replaces existing)"
+    )
+    city: Optional[str] = Field(default=None, description="Update city")
+    state: Optional[str] = Field(default=None, description="Update state")
+    country: Optional[str] = Field(default=None, description="Update country")
+    linkedin_url: Optional[str] = Field(default=None, description="Update LinkedIn URL")
+
+    class Config:
+        exclude_none = True
+
+
+class ContactBulkUpdateRequest(BaseModel):
+    """Request for bulk update contacts endpoint (up to 100 contacts)."""
+
+    contacts: List[ContactBulkUpdateItem] = Field(
+        description="Array of contact objects to update (max 100)", max_length=100
+    )
+
+
+class ContactBulkUpdateResponse(BaseModel):
+    """Response from bulk update contacts endpoint."""
+
+    contacts: List[Any] = Field(description="Array of updated contacts")

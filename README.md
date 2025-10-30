@@ -27,7 +27,10 @@ The following functionalities are exposed as MCP tools:
 -   `contact_search`: Search contacts saved to YOUR Apollo CRM (not global search). Returns `contact_id` needed for updates.
 -   `contact_create`: Create a new contact in your Apollo CRM with optional list assignment.
 -   `contact_update`: Update an existing contact in your Apollo CRM, including managing list membership.
+-   `contact_bulk_create`: Bulk create up to 100 contacts in a single API call. Returns separate arrays for created and existing contacts.
+-   `contact_bulk_update`: Bulk update up to 100 contacts in a single API call. Much more efficient than individual updates.
 -   `labels_list`: List all labels/lists in your Apollo account, with optional filtering by modality (contacts, accounts, emailer_campaigns). **Requires master API key.**
+-   `usage_stats`: Get API usage statistics and rate limits per endpoint. **Requires master API key.**
 
 **Note on Lists vs Labels**: Apollo's API uses the term "labels" (via `label_names` parameter), but these appear as "Lists" in the Apollo UI. They are the same thing. Lists can be automatically created when you assign contacts to them.
 
@@ -89,6 +92,64 @@ labels_list(modality="accounts")  # Get only account lists
 
 **Note**: This endpoint requires a **master API key**. Regular API keys will receive a 403 error.
 
+#### Bulk Create Contacts
+Create up to 100 contacts in a single operation:
+```python
+contact_bulk_create(
+    contacts=[
+        {
+            "first_name": "Alice",
+            "last_name": "Smith",
+            "email": "alice@example.com",
+            "title": "Product Manager",
+            "organization_name": "Test Corp",
+            "label_names": ["Hot Leads"]
+        },
+        {
+            "first_name": "Bob",
+            "last_name": "Jones",
+            "email": "bob@testco.com",
+            "title": "Engineer",
+            "organization_name": "Test Company"
+        }
+    ]
+)
+```
+
+Returns two arrays:
+- `created_contacts`: Newly created contacts
+- `existing_contacts`: Contacts that already existed (matched by email, **not updated**)
+
+#### Bulk Update Contacts
+Update up to 100 contacts in a single operation:
+```python
+contact_bulk_update(
+    contacts=[
+        {
+            "id": "contact_id_1",
+            "title": "Senior Product Manager",
+            "label_names": ["Hot Leads", "Q1 2024"]
+        },
+        {
+            "id": "contact_id_2",
+            "email": "newemail@example.com"
+        }
+    ]
+)
+```
+
+**Note**: Each contact must have an `id` field. Only provided fields will be updated.
+
+#### Get Usage Stats
+Monitor your API usage and rate limits:
+```python
+usage_stats()
+```
+
+Returns rate limits per endpoint with minute, hour, and day limits, plus consumed and remaining counts.
+
+**Note**: This endpoint requires a **master API key**. Regular API keys will receive a 403 error.
+
 ## Data Models
 
 The `apollo/` directory contains the data models for the Apollo.io API. These models are used to define the input and output of the MCP tools.
@@ -98,8 +159,9 @@ The `apollo/` directory contains the data models for the Apollo.io API. These mo
 - `apollo/people_search.py`: Defines the data models for the People Search endpoint.
 - `apollo/organization_search.py`: Defines the data models for the Organization Search endpoint.
 - `apollo/organization_job_postings.py`: Defines the data models for the Organization Job Postings endpoint.
-- `apollo/contacts.py`: Defines the data models for contact write operations (search, create, update).
+- `apollo/contacts.py`: Defines the data models for contact write operations (search, create, update, bulk create, bulk update).
 - `apollo/labels.py`: Defines the data models for labels/lists operations.
+- `apollo/usage_stats.py`: Defines the data models for API usage statistics and rate limits.
 
 ## Testing
 

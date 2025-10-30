@@ -447,3 +447,127 @@ LABELS_LIST_ACCOUNTS = [
         "updated_at": "2024-02-05T14:30:00.000Z"
     }
 ]
+
+# Contact bulk create response
+CONTACT_BULK_CREATE_RESPONSE = {
+    "created_contacts": [
+        {
+            "id": "bulk_created_1",
+            "first_name": "Alice",
+            "last_name": "Smith",
+            "email": "alice.smith@example.com",
+            "title": "Product Manager",
+            "organization_name": "Test Corp",
+            "source": "api",
+            "label_ids": ["test_label_123"],
+            "created_at": "2025-10-30T20:30:00.000Z"
+        },
+        {
+            "id": "bulk_created_2",
+            "first_name": "Bob",
+            "last_name": "Jones",
+            "email": "bob.jones@testco.com",
+            "title": "Engineer",
+            "organization_name": "Test Company",
+            "source": "api",
+            "label_ids": ["test_label_123"],
+            "created_at": "2025-10-30T20:30:00.100Z"
+        }
+    ],
+    "existing_contacts": [
+        {
+            "id": "existing_contact_1",
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "email": "jane.doe@example.com",
+            "title": "Senior Product Manager",
+            "organization_name": "Example Corp",
+            "source": "import",
+            "label_ids": ["label_1"],
+            "created_at": "2025-10-15T10:00:00.000Z"
+        }
+    ]
+}
+
+# Contact bulk update response
+CONTACT_BULK_UPDATE_RESPONSE = {
+    "contacts": [
+        {
+            "id": "bulk_created_1",
+            "first_name": "Alice",
+            "last_name": "Smith",
+            "email": "alice.smith@example.com",
+            "title": "Senior Product Manager",  # Updated
+            "organization_name": "Test Corp",
+            "source": "api",
+            "label_ids": ["test_label_123", "test_label_456"],  # Updated
+            "updated_at": "2025-10-30T20:35:00.000Z"
+        },
+        {
+            "id": "bulk_created_2",
+            "first_name": "Bob",
+            "last_name": "Jones",
+            "email": "bob.jones.new@testco.com",  # Updated
+            "title": "Engineer",
+            "organization_name": "Test Company",
+            "source": "api",
+            "label_ids": ["test_label_123"],
+            "updated_at": "2025-10-30T20:35:00.100Z"
+        }
+    ]
+}
+
+# Usage stats response
+USAGE_STATS_RESPONSE = {
+    "api/v1/mixed_people/search": {
+        "minute": {
+            "limit": 60,
+            "consumed": 12,
+            "left_over": 48
+        },
+        "hour": {
+            "limit": 600,
+            "consumed": 145,
+            "left_over": 455
+        },
+        "day": {
+            "limit": 5000,
+            "consumed": 823,
+            "left_over": 4177
+        }
+    },
+    "api/v1/contacts/search": {
+        "minute": {
+            "limit": 60,
+            "consumed": 5,
+            "left_over": 55
+        },
+        "hour": {
+            "limit": 600,
+            "consumed": 42,
+            "left_over": 558
+        },
+        "day": {
+            "limit": 5000,
+            "consumed": 234,
+            "left_over": 4766
+        }
+    },
+    "api/v1/contacts/bulk_create": {
+        "minute": {
+            "limit": 10,
+            "consumed": 2,
+            "left_over": 8
+        },
+        "hour": {
+            "limit": 100,
+            "consumed": 15,
+            "left_over": 85
+        },
+        "day": {
+            "limit": 1000,
+            "consumed": 87,
+            "left_over": 913
+        }
+    }
+}
