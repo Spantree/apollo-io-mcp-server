@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List, Dict
 import httpx
 
 from apollo import *
@@ -80,6 +80,134 @@ class ApolloClient:
             response = await client.get(url, headers=self.headers)
             if response.status_code == 200:
                 return OrganizationJobPostingsResponse(**response.json())
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+                return None
+
+    async def contacts_search(
+        self,
+        query: Optional[str] = None,
+        label_ids: Optional[List[str]] = None,
+        page: int = 1,
+        per_page: int = 25
+    ) -> Optional[ContactSearchResponse]:
+        """
+        Search contacts saved to your Apollo CRM.
+        https://docs.apollo.io/reference/contacts-search
+
+        Args:
+            query: Search query (matches name, email, company, title, etc.)
+            label_ids: Filter by list IDs (lists are called 'labels' in Apollo API)
+            page: Page number (default: 1)
+            per_page: Results per page (default: 25, max: 100)
+
+        Returns:
+            ContactSearchResponse with contacts and pagination info
+        """
+        url = f"{self.base_url}/contacts/search"
+        params = {
+            "page": page,
+            "per_page": min(per_page, 100)  # Cap at 100 per API docs
+        }
+        if query:
+            params["q"] = query
+        if label_ids:
+            params["contact_label_ids[]"] = label_ids
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, params=params, headers=self.headers)
+            if response.status_code == 200:
+                return ContactSearchResponse(**response.json())
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+                return None
+
+    async def contact_create(
+        self,
+        first_name: str,
+        last_name: str,
+        email: Optional[str] = None,
+        organization_name: Optional[str] = None,
+        title: Optional[str] = None,
+        label_names: Optional[List[str]] = None,
+        phone_numbers: Optional[List[Dict[str, str]]] = None,
+        **kwargs
+    ) -> Optional[ContactCreateResponse]:
+        """
+        Create a new contact in your Apollo CRM.
+        https://docs.apollo.io/reference/create-contact
+
+        Args:
+            first_name: Contact's first name (required)
+            last_name: Contact's last name (required)
+            email: Email address (recommended for future updates)
+            organization_name: Company name
+            title: Job title
+            label_names: List names to add contact to (auto-created if don't exist)
+            phone_numbers: List of phone number dicts with 'raw_number' and 'type'
+            **kwargs: Additional fields (city, state, country, linkedin_url, etc.)
+
+        Returns:
+            ContactCreateResponse with created contact including contact_id
+        """
+        url = f"{self.base_url}/contacts"
+        data = {
+            "first_name": first_name,
+            "last_name": last_name
+        }
+        if email:
+            data["email"] = email
+        if organization_name:
+            data["organization_name"] = organization_name
+        if title:
+            data["title"] = title
+        if label_names:
+            data["label_names"] = label_names
+        if phone_numbers:
+            data["phone_numbers"] = phone_numbers
+        # Add any additional fields
+        data.update(kwargs)
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, json=data, headers=self.headers)
+            if response.status_code == 200:
+                return ContactCreateResponse(**response.json())
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+                return None
+
+    async def contact_update(
+        self,
+        contact_id: str,
+        **fields
+    ) -> Optional[ContactUpdateResponse]:
+        """
+        Update an existing contact in your Apollo CRM.
+        https://docs.apollo.io/reference/update-contact
+
+        Only fields provided will be updated. Omitted fields remain unchanged.
+
+        Args:
+            contact_id: Apollo contact ID (from contacts_search or contact_create)
+            **fields: Fields to update (first_name, last_name, email, title,
+                     organization_name, label_names, phone_numbers, etc.)
+
+        Returns:
+            ContactUpdateResponse with updated contact
+
+        Note:
+            label_names REPLACES the contact's lists entirely. To add to existing
+            lists, first fetch current label_names via contacts_search, then include
+            both old and new list names in the update.
+        """
+        url = f"{self.base_url}/contacts/{contact_id}"
+        # Filter out None values to only update provided fields
+        data = {k: v for k, v in fields.items() if v is not None}
+
+        async with httpx.AsyncClient() as client:
+            response = await client.put(url, json=data, headers=self.headers)
+            if response.status_code == 200:
+                return ContactUpdateResponse(**response.json())
             else:
                 print(f"Error: {response.status_code} - {response.text}")
                 return None
