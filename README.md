@@ -24,7 +24,7 @@ The following functionalities are exposed as MCP tools:
 
 ### Write Operations (Contact Management)
 
--   `contacts_search`: Search contacts saved to YOUR Apollo CRM (not global search). Returns `contact_id` needed for updates.
+-   `contact_search`: Search contacts saved to YOUR Apollo CRM (not global search). Returns `contact_id` needed for updates.
 -   `contact_create`: Create a new contact in your Apollo CRM with optional list assignment.
 -   `contact_update`: Update an existing contact in your Apollo CRM, including managing list membership.
 -   `labels_list`: List all labels/lists in your Apollo account, with optional filtering by modality (contacts, accounts, emailer_campaigns). **Requires master API key.**
@@ -44,7 +44,7 @@ To use this MCP server, you need to:
 #### Search Contacts
 Search contacts you've saved to your Apollo CRM:
 ```python
-contacts_search(
+contact_search(
     query="john@example.com",  # Search by email, name, company, etc.
     page=1,
     per_page=25
@@ -68,14 +68,14 @@ contact_create(
 Update an existing contact's information:
 ```python
 contact_update(
-    contact_id="5f7b1b5b4c9d6c0001234567",  # From contacts_search or contact_create
+    contact_id="5f7b1b5b4c9d6c0001234567",  # From contact_search or contact_create
     title="Senior VP of Sales",
     label_names=["Hot Leads", "Q2 2024"]  # REPLACES all existing lists
 )
 ```
 
 **Important**: `label_names` in `contact_update` REPLACES all lists. To add to existing lists:
-1. Use `contacts_search` to get current `label_names`
+1. Use `contact_search` to get current `label_names`
 2. Merge with new list names
 3. Pass complete list to `contact_update`
 

@@ -26,7 +26,7 @@ vcr_config = vcr.VCR(
 
 
 @pytest.mark.integration
-async def test_contacts_search_no_results(apollo_api_key):
+async def test_contact_search_no_results(apollo_api_key):
     """
     Test searching for contacts with a query unlikely to have results.
 
@@ -36,7 +36,7 @@ async def test_contacts_search_no_results(apollo_api_key):
         client = ApolloClient(api_key=apollo_api_key)
 
         # Search for contacts with unlikely query
-        result = await client.contacts_search(
+        result = await client.contact_search(
             query="nonexistentcontact12345@example.com",
             page=1,
             per_page=10
@@ -121,9 +121,9 @@ async def test_contact_update(apollo_api_key):
 
 
 @pytest.mark.integration
-async def test_contacts_search_pagination(apollo_api_key):
+async def test_contact_search_pagination(apollo_api_key):
     """
-    Test contacts search with pagination parameters.
+    Test contact search with pagination parameters.
 
     Validates pagination structure even if no results.
     """
@@ -131,7 +131,7 @@ async def test_contacts_search_pagination(apollo_api_key):
         client = ApolloClient(api_key=apollo_api_key)
 
         # Search with pagination
-        result = await client.contacts_search(
+        result = await client.contact_search(
             query="test",
             page=1,
             per_page=5
