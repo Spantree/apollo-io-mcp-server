@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "apollo-io": {
+      "command": "uv",
+      "args": [
+        "run",
+        "mcp",
+        "run",
+        "/Users/cedric/src/edwardchoh/apollo-io-mcp-server/server.py"
+      ],
+      "env": {
+        "APOLLO_IO_API_KEY": "${env:APOLLO_IO_API_KEY}"
+      }
+    }
+  }
+}
