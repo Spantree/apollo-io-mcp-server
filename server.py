@@ -7,8 +7,12 @@ import os
 
 from dotenv import load_dotenv
 load_dotenv()
+# Also load .env.secrets if present
+load_dotenv('.env.secrets')
 
-apollo_client = ApolloClient(api_key=os.getenv("APOLLO_IO_API_KEY"))
+# Support both APOLLO_API_KEY and APOLLO_IO_API_KEY
+api_key = os.getenv("APOLLO_API_KEY") or os.getenv("APOLLO_IO_API_KEY")
+apollo_client = ApolloClient(api_key=api_key)
 
 mcp = FastMCP("Apollo.io")
 
