@@ -212,6 +212,93 @@ class ApolloClient:
                 print(f"Error: {response.status_code} - {response.text}")
                 return None
 
+    async def contact_bulk_create(
+        self,
+        contacts: List[Dict]
+    ) -> Optional[ContactBulkCreateResponse]:
+        """
+        Bulk create up to 100 contacts in your Apollo CRM.
+        https://docs.apollo.io/reference/create-contacts-bulk
+
+        Args:
+            contacts: List of contact dictionaries (max 100), each containing:
+                     - first_name (required)
+                     - last_name (required)
+                     - email (optional but recommended)
+                     - organization_name, title, label_names, etc. (optional)
+
+        Returns:
+            ContactBulkCreateResponse with created_contacts and existing_contacts arrays
+
+        Note:
+            If a contact already exists (matched by email), it will be returned in
+            existing_contacts array but will NOT be updated. Use bulk_update for that.
+        """
+        url = f"{self.base_url}/contacts/bulk_create"
+        data = {"contacts": contacts[:100]}  # Cap at 100 per API docs
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, json=data, headers=self.headers)
+            if response.status_code == 200:
+                return ContactBulkCreateResponse(**response.json())
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+                return None
+
+    async def contact_bulk_update(
+        self,
+        contacts: List[Dict]
+    ) -> Optional[ContactBulkUpdateResponse]:
+        """
+        Bulk update up to 100 contacts in your Apollo CRM.
+        https://docs.apollo.io/reference/update-contacts-bulk
+
+        Args:
+            contacts: List of contact dictionaries (max 100), each containing:
+                     - id (required) - Apollo contact ID
+                     - Any fields to update (first_name, last_name, email, title, etc.)
+
+        Returns:
+            ContactBulkUpdateResponse with updated contacts array
+
+        Note:
+            For 100 or fewer contacts, the response is synchronous.
+            label_names REPLACES the contact's lists entirely.
+        """
+        url = f"{self.base_url}/contacts/bulk_update"
+        data = {"contacts": contacts[:100]}  # Cap at 100 per API docs
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, json=data, headers=self.headers)
+            if response.status_code == 200:
+                return ContactBulkUpdateResponse(**response.json())
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+                return None
+
+    async def usage_stats(self) -> Optional[UsageStatsResponse]:
+        """
+        Get API usage statistics and rate limits for your Apollo account.
+        https://docs.apollo.io/reference/get-usage-stats
+
+        Returns rate limits per endpoint with minute, hour, and day limits.
+
+        Returns:
+            UsageStatsResponse with rate limit stats keyed by endpoint identifier
+
+        Note:
+            This endpoint requires a master API key. Regular API keys will receive a 403 error.
+        """
+        url = f"{self.base_url}/usage_stats/api_usage_stats"
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, headers=self.headers)
+            if response.status_code == 200:
+                return UsageStatsResponse(**response.json())
+            else:
+                print(f"Error: {response.status_code} - {response.text}")
+                return None
+
     async def labels_list(
         self,
         modality: Optional[str] = None

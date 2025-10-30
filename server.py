@@ -231,6 +231,111 @@ async def contact_update(
     return result.model_dump() if result else None
 
 @mcp.tool()
+async def contact_bulk_create(contacts: List[dict]) -> Optional[dict]:
+    """
+    Bulk create up to 100 contacts in your Apollo CRM.
+
+    This is much more efficient than creating contacts one-by-one.
+    If a contact already exists (matched by email), it will be returned
+    in existing_contacts array but will NOT be updated.
+
+    Lists (label_names) will be created automatically if they don't exist.
+
+    Args:
+        contacts: List of contact dictionaries (max 100), each containing:
+                 - first_name (required)
+                 - last_name (required)
+                 - email (optional but recommended for deduplication)
+                 - organization_name, title, label_names, etc. (optional)
+
+                 Example:
+                 [
+                   {
+                     "first_name": "John",
+                     "last_name": "Doe",
+                     "email": "john@example.com",
+                     "title": "CEO",
+                     "organization_name": "Example Corp",
+                     "label_names": ["Hot Leads"]
+                   },
+                   ...
+                 ]
+
+    Returns:
+        Dict with:
+        - 'created_contacts': Array of newly created contacts
+        - 'existing_contacts': Array of contacts that already existed
+        Or None on error
+
+    Reference:
+        https://docs.apollo.io/reference/create-contacts-bulk
+    """
+    result = await apollo_client.contact_bulk_create(contacts=contacts)
+    return result.model_dump() if result else None
+
+@mcp.tool()
+async def contact_bulk_update(contacts: List[dict]) -> Optional[dict]:
+    """
+    Bulk update up to 100 contacts in your Apollo CRM.
+
+    This is much more efficient than updating contacts one-by-one.
+    Only provided fields will be updated for each contact.
+
+    IMPORTANT: label_names REPLACES the contact's lists entirely for each contact.
+
+    Args:
+        contacts: List of contact dictionaries (max 100), each containing:
+                 - id (required) - Apollo contact ID
+                 - Any fields to update (first_name, last_name, email, title, etc.)
+
+                 Example:
+                 [
+                   {
+                     "id": "contact_id_1",
+                     "title": "Senior CEO",
+                     "label_names": ["Hot Leads", "Q1 2024"]
+                   },
+                   {
+                     "id": "contact_id_2",
+                     "email": "newemail@example.com"
+                   },
+                   ...
+                 ]
+
+    Returns:
+        Dict with 'contacts' array of updated contacts, or None on error
+
+    Reference:
+        https://docs.apollo.io/reference/update-contacts-bulk
+    """
+    result = await apollo_client.contact_bulk_update(contacts=contacts)
+    return result.model_dump() if result else None
+
+@mcp.tool()
+async def usage_stats() -> Optional[dict]:
+    """
+    Get API usage statistics and rate limits for your Apollo account.
+
+    Returns rate limits per endpoint showing:
+    - Minute limits (limit, consumed, left_over)
+    - Hour limits (limit, consumed, left_over)
+    - Day limits (limit, consumed, left_over)
+
+    This is useful for monitoring your API usage and avoiding rate limit errors.
+
+    IMPORTANT: This endpoint requires a master API key. Regular API keys will
+    receive a 403 Forbidden error.
+
+    Returns:
+        Dict with rate limit stats keyed by endpoint identifier, or None on error
+
+    Reference:
+        https://docs.apollo.io/reference/get-usage-stats
+    """
+    result = await apollo_client.usage_stats()
+    return result.model_dump() if result else None
+
+@mcp.tool()
 async def labels_list(modality: Optional[str] = None) -> Optional[dict]:
     """
     List all labels/lists in your Apollo account.
