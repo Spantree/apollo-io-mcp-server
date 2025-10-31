@@ -3,3 +3,8 @@ from .organization_search import *
 from .organization import *
 from .people_search import *
 from .people import *
+from .people_bulk import *
+from .contacts import *
+from .accounts import *
+from .labels import *
+from .usage_stats import *
