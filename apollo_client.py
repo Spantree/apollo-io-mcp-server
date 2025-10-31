@@ -532,6 +532,144 @@ class ApolloClient:
                 print(f"Error: {response.status_code} - {response.text}")
                 return None
 
+    async def account_add_to_list(
+        self,
+        account_ids: List[str],
+        label_name: str,
+        max_search_pages: int = 10
+    ) -> Optional[Dict]:
+        """
+        Helper to add accounts to a list without losing existing labels.
+        Fetches current labels, merges with new label, and performs bulk update.
+
+        Args:
+            account_ids: List of account IDs (up to 10)
+            label_name: Name of list to add accounts to
+            max_search_pages: Max pages to search when fetching accounts (default: 10)
+
+        Returns:
+            Dict with:
+                - updated_accounts: list of successfully updated accounts
+                - found_ids: list of account IDs that were found and updated
+                - not_found_ids: list of account IDs that couldn't be found
+                - total_requested: number of accounts requested
+        """
+        # Fetch accounts to get current labels
+        all_accounts = []
+        page = 1
+
+        while page <= max_search_pages:
+            response = await self.account_search(page=page, per_page=100)
+            if not response or not response.accounts:
+                break
+            all_accounts.extend(response.accounts)
+            if len(response.accounts) < 100:
+                break
+            page += 1
+
+        # Build account map
+        account_map = {str(acc.get('id')): acc for acc in all_accounts}
+
+        # Build updates for accounts we found
+        updates = []
+        found_ids = []
+        not_found_ids = []
+
+        for account_id in account_ids[:10]:  # Limit to 10
+            if account_id in account_map:
+                account = account_map[account_id]
+                current_labels = account.get('label_names', []) or []
+                # Add new label if not already present
+                new_labels = list(set(current_labels + [label_name]))
+                updates.append({
+                    "id": account_id,
+                    "label_names": new_labels
+                })
+                found_ids.append(account_id)
+            else:
+                not_found_ids.append(account_id)
+
+        # Perform bulk update
+        result = None
+        if updates:
+            result = await self.account_bulk_update(updates)
+
+        return {
+            "updated_accounts": result.accounts if result else [],
+            "found_ids": found_ids,
+            "not_found_ids": not_found_ids,
+            "total_requested": len(account_ids[:10])
+        }
+
+    async def account_remove_from_list(
+        self,
+        account_ids: List[str],
+        label_name: str,
+        max_search_pages: int = 10
+    ) -> Optional[Dict]:
+        """
+        Helper to remove accounts from a list without affecting other labels.
+        Fetches current labels, removes specified label, and performs bulk update.
+
+        Args:
+            account_ids: List of account IDs (up to 10)
+            label_name: Name of list to remove accounts from
+            max_search_pages: Max pages to search when fetching accounts (default: 10)
+
+        Returns:
+            Dict with:
+                - updated_accounts: list of successfully updated accounts
+                - found_ids: list of account IDs that were found and updated
+                - not_found_ids: list of account IDs that couldn't be found
+                - total_requested: number of accounts requested
+        """
+        # Fetch accounts to get current labels
+        all_accounts = []
+        page = 1
+
+        while page <= max_search_pages:
+            response = await self.account_search(page=page, per_page=100)
+            if not response or not response.accounts:
+                break
+            all_accounts.extend(response.accounts)
+            if len(response.accounts) < 100:
+                break
+            page += 1
+
+        # Build account map
+        account_map = {str(acc.get('id')): acc for acc in all_accounts}
+
+        # Build updates for accounts we found
+        updates = []
+        found_ids = []
+        not_found_ids = []
+
+        for account_id in account_ids[:10]:  # Limit to 10
+            if account_id in account_map:
+                account = account_map[account_id]
+                current_labels = account.get('label_names', []) or []
+                # Remove specified label
+                new_labels = [label for label in current_labels if label != label_name]
+                updates.append({
+                    "id": account_id,
+                    "label_names": new_labels
+                })
+                found_ids.append(account_id)
+            else:
+                not_found_ids.append(account_id)
+
+        # Perform bulk update
+        result = None
+        if updates:
+            result = await self.account_bulk_update(updates)
+
+        return {
+            "updated_accounts": result.accounts if result else [],
+            "found_ids": found_ids,
+            "not_found_ids": not_found_ids,
+            "total_requested": len(account_ids[:10])
+        }
+
 # Example usage (you'll need to set the APOLLO_IO_API_KEY environment variable)
 async def main():
     import os

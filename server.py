@@ -786,6 +786,126 @@ async def account_bulk_update(accounts: List[dict]) -> Optional[dict]:
     return result.model_dump() if result else None
 
 @mcp.tool()
+async def account_add_to_list(
+    account_ids: List[str],
+    label_name: str
+) -> Optional[dict]:
+    """
+    Add multiple accounts to a list without losing their existing labels (up to 10 accounts).
+
+    IMPORTANT: This endpoint requires a master API key.
+
+    This helper tool solves the label replacement problem. Since account_update and
+    account_bulk_update REPLACE labels entirely, this tool fetches current labels
+    for each account, adds the new label, and performs the update safely.
+
+    WORKFLOW:
+    1. Fetches current accounts from your CRM (searches up to 1000 accounts)
+    2. Finds accounts matching the provided account_ids
+    3. Merges existing labels with new label (deduplicates)
+    4. Performs bulk update with merged labels
+
+    Args:
+        account_ids: List of Apollo account IDs (up to 10)
+                    Get these from account_search or organization_search results
+                    Example: ["account_123", "account_456"]
+        label_name: Name of list to add accounts to
+                   List will be created automatically if it doesn't exist
+                   Example: "Target Accounts Q1 2024"
+
+    Returns:
+        Dict with:
+        - updated_accounts: Array of successfully updated account objects
+        - found_ids: Array of account IDs that were found and updated
+        - not_found_ids: Array of account IDs that couldn't be found
+        - total_requested: Number of accounts requested
+
+    USE CASES:
+    - Add multiple accounts to a campaign list
+    - Tag accounts with a new category without losing existing tags
+    - Organize accounts into multiple overlapping lists
+
+    LIMITATIONS:
+    - Searches up to 1000 accounts (10 pages x 100 per page)
+    - If you have more accounts, some may not be found
+    - If account not found, it's listed in not_found_ids
+
+    Example:
+    {
+      "account_ids": ["account_123", "account_456", "account_789"],
+      "label_name": "Enterprise Targets"
+    }
+
+    Result: All 3 accounts are added to "Enterprise Targets" list while
+    keeping any other lists they're already in.
+    """
+    result = await apollo_client.account_add_to_list(
+        account_ids=account_ids,
+        label_name=label_name
+    )
+    return result
+
+@mcp.tool()
+async def account_remove_from_list(
+    account_ids: List[str],
+    label_name: str
+) -> Optional[dict]:
+    """
+    Remove multiple accounts from a list without affecting their other labels (up to 10 accounts).
+
+    IMPORTANT: This endpoint requires a master API key.
+
+    This helper tool safely removes accounts from a specific list while preserving
+    all their other list memberships. It fetches current labels, removes only the
+    specified label, and updates.
+
+    WORKFLOW:
+    1. Fetches current accounts from your CRM (searches up to 1000 accounts)
+    2. Finds accounts matching the provided account_ids
+    3. Removes specified label from each account's label list
+    4. Performs bulk update with remaining labels
+
+    Args:
+        account_ids: List of Apollo account IDs (up to 10)
+                    Get these from account_search results
+                    Example: ["account_123", "account_456"]
+        label_name: Name of list to remove accounts from
+                   Example: "Disqualified Leads"
+
+    Returns:
+        Dict with:
+        - updated_accounts: Array of successfully updated account objects
+        - found_ids: Array of account IDs that were found and updated
+        - not_found_ids: Array of account IDs that couldn't be found
+        - total_requested: Number of accounts requested
+
+    USE CASES:
+    - Remove accounts from a campaign after completion
+    - Clean up accounts from old/obsolete lists
+    - Remove disqualified accounts from target lists
+
+    LIMITATIONS:
+    - Searches up to 1000 accounts (10 pages x 100 per page)
+    - If you have more accounts, some may not be found
+    - If account not found, it's listed in not_found_ids
+    - If account doesn't have the label, it's still updated (no-op)
+
+    Example:
+    {
+      "account_ids": ["account_123", "account_456"],
+      "label_name": "Cold Leads"
+    }
+
+    Result: Both accounts are removed from "Cold Leads" list while
+    keeping all their other list memberships intact.
+    """
+    result = await apollo_client.account_remove_from_list(
+        account_ids=account_ids,
+        label_name=label_name
+    )
+    return result
+
+@mcp.tool()
 async def usage_stats() -> Optional[dict]:
     """
     Get API usage statistics and rate limits for your Apollo account.
