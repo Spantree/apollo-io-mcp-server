@@ -333,6 +333,70 @@ pytest tests/
 
 **Note**: Integration tests require `APOLLO_IO_API_KEY` environment variable. Tool tests that modify data are skipped by default and require a master API key.
 
+## Token Optimization
+
+The Apollo MCP server has been optimized to reduce token usage in Claude's context window.
+
+### Selective Tool Loading
+
+Use the `--tools` flag to load only the tools you need:
+
+```json
+{
+  "mcpServers": {
+    "apollo-io": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "run",
+        "mcp",
+        "run",
+        "path/to/apollo-io-mcp-server/server.py",
+        "--tools",
+        "people,organizations"
+      ]
+    }
+  }
+}
+```
+
+### Tool Categories
+
+- `people` - People search & enrichment (3 tools)
+- `organizations` - Organization search, enrichment, job postings (3 tools)
+- `contacts` - Contact CRUD operations (5 tools)
+- `accounts` - Account CRUD & list management (7 tools)
+- `misc` - Usage stats & labels (2 tools)
+
+### Examples
+
+**Load all tools (default):**
+```bash
+uv run mcp run server.py
+# Loads all 20 tools (~21,000 tokens)
+```
+
+**Load only prospecting tools:**
+```bash
+uv run mcp run server.py --tools people,organizations
+# Loads 6 tools (~6,000 tokens)
+```
+
+**Load only CRM write tools:**
+```bash
+uv run mcp run server.py --tools contacts,accounts
+# Loads 12 tools (~12,000 tokens)
+```
+
+### Detailed Documentation
+
+Concise docstrings keep context usage low. Full documentation available in:
+- `docs/tools/accounts.md` - Account management tools
+- `docs/tools/contacts.md` - Contact management tools
+- `docs/tools/people.md` - People search & enrichment
+- `docs/tools/organizations.md` - Organization search & enrichment
+- `docs/tools/misc.md` - Utility tools
+
 ## Usage with Claude for Desktop
 
 1. Configure Claude for Desktop to use these MCP servers by adding them to your `claude_desktop_config.json` file:
@@ -348,6 +412,27 @@ pytest tests/
         "mcp",
         "run",
         "path/to/apollo-io-mcp-server/server.py"
+      ]
+    }
+  }
+}
+```
+
+**Or with selective tool loading to reduce tokens:**
+
+```json
+{
+  "mcpServers": {
+    "apollo-io-prospecting": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "run",
+        "mcp",
+        "run",
+        "path/to/apollo-io-mcp-server/server.py",
+        "--tools",
+        "people,organizations"
       ]
     }
   }
