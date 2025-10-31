@@ -14,7 +14,7 @@ load_dotenv('.env.secrets')
 @pytest.fixture(scope="session")
 def apollo_api_key():
     """Get Apollo API key from environment."""
-    api_key = os.getenv("APOLLO_API_KEY") or os.getenv("APOLLO_IO_API_KEY")
+    api_key = os.getenv("APOLLO_IO_API_KEY") or os.getenv("APOLLO_API_KEY")
     if not api_key:
         pytest.skip("No Apollo API key found in environment")
     return api_key
