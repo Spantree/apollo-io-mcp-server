@@ -571,3 +571,173 @@ USAGE_STATS_RESPONSE = {
         }
     }
 }
+
+# Account search - no results
+ACCOUNTS_SEARCH_NO_RESULTS = {
+    "accounts": [],
+    "pagination": {
+        "page": 1,
+        "per_page": 25,
+        "total_entries": 0,
+        "total_pages": 0
+    }
+}
+
+# Account search - with results
+ACCOUNTS_SEARCH_WITH_RESULTS = {
+    "accounts": [
+        {
+            "id": "account_123",
+            "name": "Example Corp",
+            "domain": "example.com",
+            "team_id": "team_123",
+            "organization_id": "org_123",
+            "owner_id": "owner_123",
+            "phone": "+1-555-0100",
+            "label_names": ["Enterprise Clients"],
+            "created_at": "2024-01-15T10:00:00.000Z"
+        },
+        {
+            "id": "account_456",
+            "name": "Test Company",
+            "domain": "testco.com",
+            "team_id": "team_123",
+            "organization_id": "org_456",
+            "owner_id": "owner_123",
+            "phone": "+1-555-0200",
+            "label_names": ["Target Accounts"],
+            "created_at": "2024-02-01T11:00:00.000Z"
+        }
+    ],
+    "pagination": {
+        "page": 1,
+        "per_page": 25,
+        "total_entries": 2,
+        "total_pages": 1
+    }
+}
+
+# Account create response
+ACCOUNT_CREATE_RESPONSE = {
+    "account": {
+        "id": "account_789",
+        "name": "New Corp",
+        "domain": "newcorp.com",
+        "team_id": "team_123",
+        "organization_id": "org_789",
+        "owner_id": "owner_123",
+        "phone": "+1-555-0300",
+        "label_names": ["New Accounts"],
+        "source": "api",
+        "created_at": "2025-10-30T21:00:00.000Z"
+    }
+}
+
+# Account update response
+ACCOUNT_UPDATE_RESPONSE = {
+    "account": {
+        "id": "account_123",
+        "name": "Example Corp Updated",
+        "domain": "example.com",
+        "team_id": "team_123",
+        "organization_id": "org_123",
+        "owner_id": "owner_123",
+        "phone": "+1-555-0100",
+        "label_names": ["Enterprise Clients", "High Priority"],
+        "updated_at": "2025-10-30T21:05:00.000Z"
+    }
+}
+
+# Account bulk create response
+ACCOUNT_BULK_CREATE_RESPONSE = {
+    "created_accounts": [
+        {
+            "id": "bulk_account_1",
+            "name": "Bulk Corp 1",
+            "domain": "bulkcorp1.com",
+            "team_id": "team_123",
+            "organization_id": "org_bulk_1",
+            "source": "api",
+            "label_names": ["Bulk Import"],
+            "created_at": "2025-10-30T21:10:00.000Z"
+        },
+        {
+            "id": "bulk_account_2",
+            "name": "Bulk Corp 2",
+            "domain": "bulkcorp2.com",
+            "team_id": "team_123",
+            "organization_id": "org_bulk_2",
+            "source": "api",
+            "label_names": ["Bulk Import"],
+            "created_at": "2025-10-30T21:10:00.100Z"
+        }
+    ],
+    "existing_accounts": [
+        {
+            "id": "account_123",
+            "name": "Example Corp",
+            "domain": "example.com",
+            "team_id": "team_123",
+            "organization_id": "org_123",
+            "label_names": ["Enterprise Clients"],
+            "created_at": "2024-01-15T10:00:00.000Z"
+        }
+    ]
+}
+
+# Account bulk update response
+ACCOUNT_BULK_UPDATE_RESPONSE = {
+    "accounts": [
+        {
+            "id": "account_123",
+            "name": "Example Corp",
+            "domain": "example.com",
+            "team_id": "team_123",
+            "organization_id": "org_123",
+            "label_names": ["Enterprise Clients", "Q1 Targets"],
+            "updated_at": "2025-10-30T21:15:00.000Z"
+        },
+        {
+            "id": "account_456",
+            "name": "Test Company",
+            "domain": "testco.com",
+            "team_id": "team_123",
+            "organization_id": "org_456",
+            "label_names": ["Target Accounts", "Q1 Targets"],
+            "updated_at": "2025-10-30T21:15:00.100Z"
+        }
+    ]
+}
+
+# Bulk people enrichment response
+BULK_PEOPLE_ENRICHMENT_RESPONSE = {
+    "status": "success",
+    "total_requested_enrichments": 3,
+    "unique_enriched_records": 2,
+    "missing_records": 1,
+    "credits_consumed": 0,
+    "matches": [
+        {
+            "id": "person_123",
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "email": "jane.doe@example.com",
+            "title": "Senior Product Manager",
+            "organization": {
+                "id": "org_123",
+                "name": "Example Corp"
+            }
+        },
+        {
+            "id": "person_456",
+            "first_name": "John",
+            "last_name": "Smith",
+            "email": "john.smith@testco.com",
+            "title": "Engineering Manager",
+            "organization": {
+                "id": "org_456",
+                "name": "Test Company"
+            }
+        }
+    ]
+}
