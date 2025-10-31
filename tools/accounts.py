@@ -14,21 +14,19 @@ def register_tools(mcp, apollo_client):
         page: int = 1,
         per_page: int = 25
     ) -> Optional[dict]:
-        """Search accounts saved to YOUR Apollo CRM (not global organization search).
+        """
+        Search accounts saved to YOUR CRM (not global search). Returns account_id for updates.
+        Use organization_search for prospecting.
 
-See docs/tools/accounts.md for detailed documentation and examples.
-
-Args:
-            query: Search query - matches name, domain, etc.
-            label_ids: Filter by list IDs (lists are called 'labels' in Apollo API)
+        Args:
+            query: Matches name, domain, etc.
+            label_ids: Filter by list IDs
             page: Page number (default: 1)
             per_page: Results per page (default: 25, max: 100)
 
-Returns:
-            Dict with 'accounts' list and 'pagination' info, or None on error
-    
         Reference:
-            https://docs.apollo.io/reference/search-for-accounts"""
+            https://docs.apollo.io/reference/search-for-accounts
+        """
         result = await apollo_client.account_search(
             query=query,
             label_ids=label_ids,
@@ -47,25 +45,27 @@ Returns:
         raw_address: Optional[str] = None,
         label_names: Optional[List[str]] = None
     ) -> Optional[dict]:
-        """Create a new account in your Apollo CRM and optionally add to lists.
+        """
+        Create new account in Apollo CRM. Master API key required.
 
-See docs/tools/accounts.md for detailed documentation and examples.
+        Provide name (required), domain recommended for deduplication.
+        Lists auto-created if they don't exist.
 
-Args:
-            name: Account name (required, e.g., "Example Corp")
-            domain: Domain name without www (e.g., "example.com")
+        Args:
+            name: Account name (required)
+            domain: Domain without www (e.g., "example.com")
             owner_id: Apollo user ID for account owner
             account_stage_id: Apollo ID for account stage
             phone: Primary phone number
-            raw_address: Corporate location (e.g., "Dallas, United States")
-            label_names: List names to add account to (e.g., ["Target Accounts", "Q1 2024"])
-                        Lists are called 'labels' in Apollo API but appear as 'Lists' in UI.
+            raw_address: Corporate location
+            label_names: List names to add account to
 
-Returns:
-            Dict with created 'account' including account_id, or None on error
-    
+        Returns:
+            Dict with created account including account_id, or None on error
+
         Reference:
-            https://docs.apollo.io/reference/create-an-account"""
+            https://docs.apollo.io/reference/create-an-account
+        """
         result = await apollo_client.account_create(
             name=name,
             domain=domain,
@@ -88,27 +88,28 @@ Returns:
         raw_address: Optional[str] = None,
         label_names: Optional[List[str]] = None
     ) -> Optional[dict]:
-        """Update an existing account in your Apollo CRM.
+        """
+        Update existing account in Apollo CRM. Master API key required.
 
-See docs/tools/accounts.md for detailed documentation and examples.
+        Only provided fields are updated. IMPORTANT: label_names REPLACES all lists.
+        Use account_add_to_list/account_remove_from_list to preserve existing labels.
 
-Args:
-            account_id: Account ID from Apollo (get from account_search or account_create)
+        Args:
+            account_id: Account ID (from account_search or account_create)
             name: Update account name
             domain: Update domain
             owner_id: Update account owner
             account_stage_id: Update account stage
             phone: Update phone number
             raw_address: Update address
-            label_names: Update list membership - REPLACES existing lists entirely
-                        (e.g., ["Target Accounts", "Q2 2024"])
-                        Lists are called 'labels' in Apollo API but appear as 'Lists' in UI.
+            label_names: REPLACES existing lists entirely
 
-Returns:
-            Dict with updated 'account', or None on error
-    
+        Returns:
+            Dict with updated account, or None on error
+
         Reference:
-            https://docs.apollo.io/reference/update-an-account"""
+            https://docs.apollo.io/reference/update-an-account
+        """
         # Build fields dict with only non-None values
         fields = {}
         if name is not None:
@@ -131,66 +132,46 @@ Returns:
     
     @mcp.tool()
     async def account_bulk_create(accounts: List[dict]) -> Optional[dict]:
-        """Bulk create up to 100 accounts in your Apollo CRM.
+        """
+        Bulk create up to 100 accounts. Master API key required.
 
-See docs/tools/accounts.md for detailed documentation and examples.
+        More efficient than one-by-one creation. Existing accounts (matched by domain)
+        returned in existing_accounts but NOT updated.
 
-Args:
-            accounts: List of account dictionaries (max 100), each containing:
+        Args:
+            accounts: List of account dicts (max 100), each with:
                      - name (required)
-                     - domain (optional but recommended for deduplication)
+                     - domain (optional, recommended for deduplication)
                      - owner_id, account_stage_id, phone, raw_address, label_names (optional)
-    
-                     Example:
-                     [
-                       {
-                         "name": "Example Corp",
-                         "domain": "example.com",
-                         "phone": "555-1234",
-                         "raw_address": "San Francisco, CA",
-                         "label_names": ["Target Accounts"]
-                       },
-                       ...
-                     ]
 
-Returns:
-            Dict with:
-            - 'created_accounts': Array of newly created accounts
-            - 'existing_accounts': Array of accounts that already existed
-            Or None on error..."""
+        Returns:
+            {created_accounts, existing_accounts} or None on error
+
+        Reference:
+            https://docs.apollo.io/reference/bulk-create-accounts
+        """
         result = await apollo_client.account_bulk_create(accounts=accounts)
         return result.model_dump() if result else None
     
     @mcp.tool()
     async def account_bulk_update(accounts: List[dict]) -> Optional[dict]:
-        """Bulk update up to 100 accounts in your Apollo CRM.
+        """
+        Bulk update up to 100 accounts. Master API key required.
 
-See docs/tools/accounts.md for detailed documentation and examples.
+        More efficient than one-by-one updates. Only provided fields updated.
+        IMPORTANT: label_names REPLACES all lists for each account.
 
-Args:
-            accounts: List of account dictionaries (max 100), each containing:
+        Args:
+            accounts: List of account dicts (max 100), each with:
                      - id (required) - Apollo account ID
                      - Any fields to update (name, domain, owner_id, etc.)
-    
-                     Example:
-                     [
-                       {
-                         "id": "account_id_1",
-                         "phone": "+1-555-5678",
-                         "label_names": ["Target Accounts", "Q1 2024"]
-                       },
-                       {
-                         "id": "account_id_2",
-                         "domain": "newdomain.com"
-                       },
-                       ...
-                     ]
 
-Returns:
-            Dict with 'accounts' array of updated accounts, or None on error
-    
+        Returns:
+            {accounts: [updated accounts]} or None on error
+
         Reference:
-            https://docs.apollo.io/reference/bulk-update-accounts"""
+            https://docs.apollo.io/reference/bulk-update-accounts
+        """
         result = await apollo_client.account_bulk_update(accounts=accounts)
         return result.model_dump() if result else None
     
@@ -199,23 +180,21 @@ Returns:
         account_ids: List[str],
         label_name: str
     ) -> Optional[dict]:
-        """Add multiple accounts to a list without losing their existing labels (up to 10 accounts).
+        """
+        Add accounts to a list without losing existing labels (max 10). Master API key required.
 
-See docs/tools/accounts.md for detailed documentation and examples.
+        Helper tool that safely merges new label with current labels. Solves label replacement
+        problem - account_update/account_bulk_update REPLACE all labels, this tool preserves them.
 
-Args:
-            account_ids: List of Apollo account IDs (up to 10)
-                        Get these from account_search or organization_search results
-                        Example: ["account_123", "account_456"]
-            label_name: Name of list to add accounts to
-                       List will be created automatically if it doesn't exist
-                       Example: "Target Accounts Q1 2024"
+        See docs/tools/accounts.md for workflow details and examples.
 
-Returns:
-            Dict with:
-            - updated_accounts: Array of successfully updated account objects
-            - found_ids: Array of account IDs that were found and updated
-            - no..."""
+        Args:
+            account_ids: Account IDs to add (max 10)
+            label_name: List name (auto-created if doesn't exist)
+
+        Returns:
+            {updated_accounts, found_ids, not_found_ids, total_requested}
+        """
         result = await apollo_client.account_add_to_list(
             account_ids=account_ids,
             label_name=label_name
@@ -227,22 +206,22 @@ Returns:
         account_ids: List[str],
         label_name: str
     ) -> Optional[dict]:
-        """Remove multiple accounts from a list without affecting their other labels (up to 10 accounts).
+        """
+        Remove accounts from a list without affecting other labels (max 10). Master API key required.
 
-See docs/tools/accounts.md for detailed documentation and examples.
+        Helper tool that safely removes specified label while preserving all other labels.
+        Solves label replacement problem by fetching current labels, removing target label,
+        and updating with remaining labels.
 
-Args:
-            account_ids: List of Apollo account IDs (up to 10)
-                        Get these from account_search results
-                        Example: ["account_123", "account_456"]
-            label_name: Name of list to remove accounts from
-                       Example: "Disqualified Leads"
+        See docs/tools/accounts.md for workflow details and examples.
 
-Returns:
-            Dict with:
-            - updated_accounts: Array of successfully updated account objects
-            - found_ids: Array of account IDs that were found and updated
-            - no..."""
+        Args:
+            account_ids: Account IDs to remove (max 10)
+            label_name: List name to remove accounts from
+
+        Returns:
+            {updated_accounts, found_ids, not_found_ids, total_requested}
+        """
         result = await apollo_client.account_remove_from_list(
             account_ids=account_ids,
             label_name=label_name

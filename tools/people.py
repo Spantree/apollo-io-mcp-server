@@ -10,40 +10,49 @@ def register_tools(mcp, apollo_client):
 
     @mcp.tool()
     async def people_enrichment(query: PeopleEnrichmentQuery) -> Optional[dict]:
-        """Enrich data for a single person by providing identifying information.
+        """
+        Enrich person data by email, LinkedIn URL, name, or person_id.
+        Returns employment history, contact info, and engagement signals.
 
-See docs/tools/people.md for detailed documentation and examples.
+        Identify by: id, email, name/first_name+last_name, linkedin_url, domain+name, or organization_name+name
 
-RETURNED DATA:
-        - Person details (name, title, email, photo, social profiles)
-        - Employment history (current and previous positions)
-        - Organization details (employer information)..."""
+        Credit usage: reveal_personal_emails or reveal_phone_number may consume credits.
+        Basic enrichment is free. See docs/tools/people.md for details.
+
+        https://docs.apollo.io/reference/people-enrichment
+        """
         result = await apollo_client.people_enrichment(query)
         return result.model_dump() if result else None
 
     @mcp.tool()
     async def people_bulk_enrichment(query: BulkPeopleEnrichmentQuery) -> Optional[dict]:
-        """Enrich data for up to 10 people in a single request.
+        """
+        Enrich up to 10 people in one request. More efficient than individual calls.
 
-See docs/tools/people.md for detailed documentation and examples.
+        Provide array of person identification objects (id, email, name, linkedin_url, etc).
+        Credit usage: reveal_personal_emails/reveal_phone_number may consume credits.
 
-RETURNED DATA:
-        - status: Operation status
-        - total_requested_enrichments: Total number of enrichments requested
-        - unique_enriched_records: Number successfully enriched
-        -..."""
+        Returns: {status, total_requested_enrichments, unique_enriched_records,
+        missing_records, credits_consumed, matches}
+
+        https://docs.apollo.io/reference/bulk-people-enrichment
+        """
         result = await apollo_client.people_bulk_enrichment(query)
         return result.model_dump() if result else None
 
     @mcp.tool()
     async def people_search(query: PeopleSearchQuery) -> Optional[dict]:
-        """Search Apollo's database of 275+ million contacts to find people matching your criteria.
+        """
+        Search 275M+ people by title, seniority, location, company, and more.
+        Does not consume credits. Returns person_id for enrichment.
 
-See docs/tools/people.md for detailed documentation and examples.
+        Key filters: person_titles, person_seniorities, person_locations, contact_email_status,
+        organization_ids, q_organization_domains_list, organization_locations
 
-RETURNED DATA:
-        - Person details (name, title, email, photo, person_id)
-        - Employment history (current and previous positions)
-        - Organization details (current employer informatio..."""
+        See docs/tools/people.md for all filters and examples.
+
+        Reference:
+            https://docs.apollo.io/reference/people-search
+        """
         result = await apollo_client.people_search(query)
         return result.model_dump() if result else None

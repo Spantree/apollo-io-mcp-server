@@ -9,36 +9,29 @@ def register_tools(mcp, apollo_client):
 
     @mcp.tool()
     async def usage_stats() -> Optional[dict]:
-        """Get API usage statistics and rate limits for your Apollo account.
+        """
+        Get API usage and rate limits per endpoint. Master API key required.
+        Shows minute/hour/day limits with consumed and left_over counts.
 
-See docs/tools/misc.md for detailed documentation and examples.
-
-Returns:
-            Dict with rate limit stats keyed by endpoint identifier, or None on error
-    
         Reference:
-            https://docs.apollo.io/reference/get-usage-stats"""
+            https://docs.apollo.io/reference/get-usage-stats
+        """
         result = await apollo_client.usage_stats()
         return result.model_dump() if result else None
     
     @mcp.tool()
     async def labels_list(modality: Optional[str] = None) -> Optional[dict]:
-        """List all labels/lists in your Apollo account.
+        """
+        List all labels/lists in your Apollo account. Master API key required.
 
-See docs/tools/misc.md for detailed documentation and examples.
+        Args:
+            modality: Filter by "contacts", "accounts", or "emailer_campaigns" (default: all)
 
-Args:
-            modality: Filter by modality type. Options:
-                     - "contacts": Lists of contacts/people
-                     - "accounts": Lists of companies/organizations
-                     - "emailer_campaigns": Lists for email campaigns
-                     If None, returns all labels across all modalities.
+        Returns:
+            {labels: [{id, name, modality, cached_count, ...}]}
 
-Returns:
-            Dict with 'labels' list containing label objects (id, name, modality,
-            cached_count, etc.), or None on error
-    
         Reference:
-            https://docs.apollo.io/..."""
+            https://docs.apollo.io/reference/get-a-list-of-all-lists
+        """
         result = await apollo_client.labels_list(modality=modality)
         return result.model_dump() if result else None
