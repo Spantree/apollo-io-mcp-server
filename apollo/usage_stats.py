@@ -5,17 +5,17 @@ from pydantic import BaseModel, Field
 class RateLimitPeriod(BaseModel):
     """Rate limit information for a specific time period."""
 
-    limit: int = Field(description="Maximum requests allowed in this period")
-    consumed: int = Field(description="Requests consumed in this period")
-    left_over: int = Field(description="Requests remaining in this period")
+    limit: int = Field()
+    consumed: int = Field()
+    left_over: int = Field()
 
 
 class EndpointRateLimit(BaseModel):
     """Rate limit information for an API endpoint."""
 
-    day: RateLimitPeriod = Field(description="Daily rate limit")
-    hour: RateLimitPeriod = Field(description="Hourly rate limit")
-    minute: RateLimitPeriod = Field(description="Per-minute rate limit")
+    day: RateLimitPeriod = Field()
+    hour: RateLimitPeriod = Field()
+    minute: RateLimitPeriod = Field()
 
 
 class UsageStatsResponse(BaseModel):

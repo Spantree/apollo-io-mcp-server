@@ -19,17 +19,17 @@ class LabelListQuery(BaseModel):
 class Label(BaseModel):
     """A label/list in Apollo."""
 
-    id: str = Field(description="Label ID")
-    name: str = Field(description="Label name")
+    id: str = Field()
+    name: str = Field()
     modality: str = Field(description='Label modality: "contacts", "accounts", or "emailer_campaigns"')
-    cached_count: Optional[int] = Field(default=None, description="Number of items with this label")
-    team_id: Optional[str] = Field(default=None, description="Team ID")
-    user_id: Optional[str] = Field(default=None, description="User ID who created the label")
-    created_at: Optional[str] = Field(default=None, description="Creation timestamp")
-    updated_at: Optional[str] = Field(default=None, description="Last update timestamp")
+    cached_count: Optional[int] = Field(default=None)
+    team_id: Optional[str] = Field(default=None)
+    user_id: Optional[str] = Field(default=None)
+    created_at: Optional[str] = Field(default=None)
+    updated_at: Optional[str] = Field(default=None)
 
 
 class LabelListResponse(BaseModel):
     """Response from labels list endpoint."""
 
-    labels: List[Label] = Field(description="List of labels")
+    labels: List[Label] = Field()

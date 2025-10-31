@@ -339,7 +339,15 @@ The Apollo MCP server has been optimized to reduce token usage in Claude's conte
 
 ### Selective Tool Loading
 
-Use the `--tools` flag to load only the tools you need:
+Use `--include-tools` to load only specific tools, or `--exclude-tools` to skip certain tools.
+Only exact tool names are supported (not categories).
+
+**List all available tools:**
+```bash
+python server.py list-tools
+```
+
+**Configuration example:**
 
 ```json
 {
@@ -352,40 +360,57 @@ Use the `--tools` flag to load only the tools you need:
         "mcp",
         "run",
         "path/to/apollo-io-mcp-server/server.py",
-        "--tools",
-        "people,organizations"
+        "--include-tools=people_search,organization_enrichment,contact_create"
       ]
     }
   }
 }
 ```
 
-### Tool Categories
+### All Available Tools (20 total)
 
-- `people` - People search & enrichment (3 tools)
-- `organizations` - Organization search, enrichment, job postings (3 tools)
-- `contacts` - Contact CRUD operations (5 tools)
-- `accounts` - Account CRUD & list management (7 tools)
-- `misc` - Usage stats & labels (2 tools)
+- **People** (3 tools): `people_enrichment`, `people_bulk_enrichment`, `people_search`
+- **Organizations** (3 tools): `organization_enrichment`, `organization_search`, `organization_job_postings`
+- **Contacts** (5 tools): `contact_search`, `contact_create`, `contact_update`, `contact_bulk_create`, `contact_bulk_update`
+- **Accounts** (7 tools): `account_search`, `account_create`, `account_update`, `account_bulk_create`, `account_bulk_update`, `account_add_to_list`, `account_remove_from_list`
+- **Misc** (2 tools): `labels_list`, `usage_stats`
 
-### Examples
+### CLI Commands
 
-**Load all tools (default):**
+**List available tools:**
 ```bash
+# List all 20 tools
+python server.py list-tools
+
+# List only specific tools (filtered)
+python server.py list-tools --include-tools=people_search,organization_enrichment
+```
+
+**Start server:**
+```bash
+# Start with all tools (default)
 uv run mcp run server.py
-# Loads all 20 tools (~21,000 tokens)
+
+# Include only specific tools
+uv run mcp run server.py --include-tools=people_search,organization_enrichment,contact_create
+
+# Exclude specific tools
+uv run mcp run server.py --exclude-tools=account_bulk_create,account_bulk_update
+
+# Explicit mcp subcommand (same as default)
+uv run mcp run server.py mcp --include-tools=people_search
 ```
 
-**Load only prospecting tools:**
+**Common configurations:**
 ```bash
-uv run mcp run server.py --tools people,organizations
-# Loads 6 tools (~6,000 tokens)
-```
+# Prospecting only (6 tools)
+uv run mcp run server.py --include-tools=people_search,people_enrichment,people_bulk_enrichment,organization_search,organization_enrichment,organization_job_postings
 
-**Load only CRM write tools:**
-```bash
-uv run mcp run server.py --tools contacts,accounts
-# Loads 12 tools (~12,000 tokens)
+# CRM write only (12 tools)
+uv run mcp run server.py --include-tools=contact_search,contact_create,contact_update,contact_bulk_create,contact_bulk_update,account_search,account_create,account_update,account_bulk_create,account_bulk_update,account_add_to_list,account_remove_from_list
+
+# Minimal search setup (3 tools)
+uv run mcp run server.py --include-tools=people_search,organization_search,contact_create
 ```
 
 ### Detailed Documentation
@@ -431,8 +456,7 @@ Concise docstrings keep context usage low. Full documentation available in:
         "mcp",
         "run",
         "path/to/apollo-io-mcp-server/server.py",
-        "--tools",
-        "people,organizations"
+        "--include-tools=people_search,people_enrichment,organization_search,organization_enrichment"
       ]
     }
   }
