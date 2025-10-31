@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 class AccountCreateRequest(BaseModel):
     """Request data for creating a new account in your Apollo CRM."""
 
-    name: str = Field(description="Account name (required, human-readable)")
+    name: str = Field()
     domain: Optional[str] = Field(
         default=None,
         description="Domain name without www (e.g., 'apollo.io')"
@@ -42,16 +42,16 @@ class AccountCreateRequest(BaseModel):
 class AccountUpdateRequest(BaseModel):
     """Request data for updating an existing account in your Apollo CRM."""
 
-    account_id: str = Field(description="Apollo account ID (required for API call)")
-    name: Optional[str] = Field(default=None, description="Update account name")
-    domain: Optional[str] = Field(default=None, description="Update domain")
-    owner_id: Optional[str] = Field(default=None, description="Update account owner")
+    account_id: str = Field()
+    name: Optional[str] = Field(default=None)
+    domain: Optional[str] = Field(default=None)
+    owner_id: Optional[str] = Field(default=None)
     account_stage_id: Optional[str] = Field(
         default=None,
         description="Update account stage"
     )
-    phone: Optional[str] = Field(default=None, description="Update phone number")
-    raw_address: Optional[str] = Field(default=None, description="Update address")
+    phone: Optional[str] = Field(default=None)
+    raw_address: Optional[str] = Field(default=None)
     typed_custom_fields: Optional[Dict[str, Any]] = Field(
         default=None,
         description="Update custom fields"
@@ -76,7 +76,7 @@ class AccountSearchQuery(BaseModel):
         default=None,
         description="Filter by list IDs (label IDs)"
     )
-    page: int = Field(default=1, description="Page number for pagination (default: 1)")
+    page: int = Field(default=1)
     per_page: int = Field(
         default=25,
         description="Results per page (default: 25, max: 100)"
@@ -86,40 +86,40 @@ class AccountSearchQuery(BaseModel):
 class Pagination(BaseModel):
     """Pagination information for search results."""
 
-    page: int = Field(description="Current page number")
-    per_page: int = Field(description="Results per page")
-    total_entries: int = Field(description="Total number of matching accounts")
-    total_pages: int = Field(description="Total number of pages")
+    page: int = Field()
+    per_page: int = Field()
+    total_entries: int = Field()
+    total_pages: int = Field()
 
 
 class AccountSearchResponse(BaseModel):
     """Response from accounts search endpoint."""
 
-    accounts: List[Any] = Field(description="List of matching accounts")
-    pagination: Pagination = Field(description="Pagination information")
+    accounts: List[Any] = Field()
+    pagination: Pagination = Field()
 
 
 class AccountCreateResponse(BaseModel):
     """Response from account create endpoint."""
 
-    account: Any = Field(description="Created account with account_id")
+    account: Any = Field()
 
 
 class AccountUpdateResponse(BaseModel):
     """Response from account update endpoint."""
 
-    account: Any = Field(description="Updated account")
+    account: Any = Field()
 
 
 class AccountBulkItem(BaseModel):
     """Account data for bulk create operation."""
 
-    name: str = Field(description="Account name (required)")
-    domain: Optional[str] = Field(default=None, description="Domain name")
-    owner_id: Optional[str] = Field(default=None, description="Account owner ID")
-    account_stage_id: Optional[str] = Field(default=None, description="Account stage ID")
-    phone: Optional[str] = Field(default=None, description="Phone number")
-    raw_address: Optional[str] = Field(default=None, description="Address")
+    name: str = Field()
+    domain: Optional[str] = Field(default=None)
+    owner_id: Optional[str] = Field(default=None)
+    account_stage_id: Optional[str] = Field(default=None)
+    phone: Optional[str] = Field(default=None)
+    raw_address: Optional[str] = Field(default=None)
     typed_custom_fields: Optional[Dict[str, Any]] = Field(
         default=None,
         description="Custom fields"
@@ -153,13 +153,13 @@ class AccountBulkCreateResponse(BaseModel):
 class AccountBulkUpdateItem(BaseModel):
     """Account data for bulk update operation."""
 
-    id: str = Field(description="Account ID (required for update)")
-    name: Optional[str] = Field(default=None, description="Update name")
-    domain: Optional[str] = Field(default=None, description="Update domain")
-    owner_id: Optional[str] = Field(default=None, description="Update owner")
-    account_stage_id: Optional[str] = Field(default=None, description="Update stage")
-    phone: Optional[str] = Field(default=None, description="Update phone")
-    raw_address: Optional[str] = Field(default=None, description="Update address")
+    id: str = Field()
+    name: Optional[str] = Field(default=None)
+    domain: Optional[str] = Field(default=None)
+    owner_id: Optional[str] = Field(default=None)
+    account_stage_id: Optional[str] = Field(default=None)
+    phone: Optional[str] = Field(default=None)
+    raw_address: Optional[str] = Field(default=None)
     typed_custom_fields: Optional[Dict[str, Any]] = Field(
         default=None,
         description="Update custom fields"
@@ -185,4 +185,4 @@ class AccountBulkUpdateRequest(BaseModel):
 class AccountBulkUpdateResponse(BaseModel):
     """Response from bulk update accounts endpoint."""
 
-    accounts: List[Any] = Field(description="Array of updated accounts")
+    accounts: List[Any] = Field()
