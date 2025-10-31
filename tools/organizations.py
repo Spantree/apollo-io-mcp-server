@@ -10,34 +10,53 @@ def register_tools(mcp, apollo_client):
 
     @mcp.tool()
     async def organization_enrichment(query: OrganizationEnrichmentQuery) -> Optional[dict]:
-        """Enrich data for a single company/organization by providing its domain name.
+        """
+        Enrich company data by domain. Returns comprehensive company info from Apollo's
+        global database. Does not consume credits.
 
-See docs/tools/organizations.md for detailed documentation and examples.
+        Args:
+            domain: Company domain without www (e.g., "apollo.io")
 
-RETURNED DATA:
-        - Company basics (name, domain, industry, description)
-        - Contact information (phone numbers, headquarters location)
-        - Company metrics (employee count, revenue, f..."""
+        Returns:
+            Company basics, metrics, social profiles, funding, tech stack, account status
+
+        Reference:
+            https://docs.apollo.io/reference/organization-enrichment
+        """
         result = await apollo_client.organization_enrichment(query)
         return result.model_dump() if result else None
 
     @mcp.tool()
     async def organization_search(query: OrganizationSearchQuery) -> Optional[dict]:
-        """Search Apollo's database of 73+ million companies to find organizations matching your criteria.
+        """
+        Search 73M+ companies by size, revenue, location, technology, keywords.
+        Does not consume credits. Returns organization_id for enrichment/people_search.
 
-See docs/tools/organizations.md for detailed documentation and examples.
+        Key filters: organization_num_employees_ranges, revenue_range, organization_locations,
+        currently_using_any_of_technology_uids, q_organization_keyword_tags, q_organization_name
 
-RETURNED DATA:
-        - Company basics (name, domain, organization_id, industry)
-        - Contact information (phone, headquarters address)
-        - Company metrics (employee count, revenue, founde..."""
+        See docs/tools/organizations.md for all filters and examples.
+
+        Reference:
+            https://docs.apollo.io/reference/organization-search
+        """
         result = await apollo_client.organization_search(query)
         return result.model_dump() if result else None
 
     @mcp.tool()
     async def organization_job_postings(organization_id: str) -> Optional[dict]:
-        """Retrieve active job postings for a specific company/organization.
+        """
+        Get active job postings for a company. Identifies hiring signals and growth areas.
+        Does not consume credits.
 
-See docs/tools/organizations.md for detailed documentation and examples."""
+        Args:
+            organization_id: Apollo org ID from organization_search
+
+        Returns:
+            Job postings with title, url, location, posted_at, last_seen_at
+
+        Reference:
+            https://docs.apollo.io/reference/organization-jobs-postings
+        """
         result = await apollo_client.organization_job_postings(organization_id)
         return result.model_dump() if result else None

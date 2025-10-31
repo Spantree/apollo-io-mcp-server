@@ -14,18 +14,16 @@ def register_tools(mcp, apollo_client):
         page: int = 1,
         per_page: int = 25
     ) -> Optional[dict]:
-        """Search contacts saved to YOUR Apollo CRM (not global people search).
+        """
+        Search contacts saved to YOUR CRM (not global search). Returns contact_id for updates.
+        Use people_search for prospecting.
 
-See docs/tools/contacts.md for detailed documentation and examples.
-
-Args:
-            query: Search query - matches name, email, company, title, etc.
-            label_ids: Filter by list IDs (lists are called 'labels' in Apollo API)
+        Args:
+            query: Matches name, email, company, title, etc.
+            label_ids: Filter by list IDs
             page: Page number (default: 1)
             per_page: Results per page (default: 25, max: 100)
-
-Returns:
-            Dict with 'contacts' list and 'pagination' info, or None on error"""
+        """
         result = await apollo_client.contact_search(
             query=query,
             label_ids=label_ids,
@@ -48,26 +46,28 @@ Returns:
         country: Optional[str] = None,
         linkedin_url: Optional[str] = None
     ) -> Optional[dict]:
-        """Create a new contact in your Apollo CRM and optionally add to lists.
+        """
+        Create new contact in Apollo CRM and optionally add to lists.
 
-See docs/tools/contacts.md for detailed documentation and examples.
+        Provide first_name and last_name (required). Email recommended for future updates.
+        Lists auto-created if they don't exist.
 
-Args:
-            first_name: Contact's first name (required)
-            last_name: Contact's last name (required)
-            email: Email address (recommended for future updates)
-            organization_name: Company/organization name
+        Args:
+            first_name: First name (required)
+            last_name: Last name (required)
+            email: Email (recommended)
+            organization_name: Company name
             title: Job title
-            label_names: List of list names to add contact to (e.g., ["Hot Leads", "Q1 2024"])
-                        Lists are called 'labels' in Apollo API but appear as 'Lists' in UI.
-            phone_number: Phone number in international format (e.g., "+1-555-0123")
+            label_names: List names to add contact to
+            phone_number: Phone in international format
             city: City
             state: State/province
             country: Country code (e.g., "US")
             linkedin_url: LinkedIn profile URL
 
-Returns:
-            Dict with created 'contact' including contact_id, or None on error"""
+        Returns:
+            Dict with created contact including contact_id, or None on error
+        """
         # Convert phone_number string to phone_numbers list if provided
         phone_numbers = None
         if phone_number:
@@ -103,28 +103,29 @@ Returns:
         country: Optional[str] = None,
         linkedin_url: Optional[str] = None
     ) -> Optional[dict]:
-        """Update an existing contact in your Apollo CRM.
+        """
+        Update existing contact in Apollo CRM.
 
-See docs/tools/contacts.md for detailed documentation and examples.
+        Only provided fields updated. IMPORTANT: label_names REPLACES all lists.
+        Get current labels from contact_search to preserve existing lists.
 
-Args:
-            contact_id: Contact ID from Apollo (get from contacts_search or contact_create)
+        Args:
+            contact_id: Contact ID (from contact_search or contact_create)
             first_name: Update first name
             last_name: Update last name
-            email: Update email address
-            organization_name: Update company/organization name
+            email: Update email
+            organization_name: Update company name
             title: Update job title
-            label_names: Update list membership - REPLACES existing lists entirely
-                        (e.g., ["Hot Leads", "Q2 2024"])
-                        Lists are called 'labels' in Apollo API but appear as 'Lists' in UI.
-            phone_number: Update phone number (e.g., "+1-555-0123")
+            label_names: REPLACES existing lists entirely
+            phone_number: Update phone (e.g., "+1-555-0123")
             city: Update city
-            state: Update state/province
+            state: Update state
             country: Update country code
             linkedin_url: Update LinkedIn URL
 
-Returns:
-            Dict with updated 'contact', or None on error"""
+        Returns:
+            Dict with updated contact, or None on error
+        """
         # Build fields dict with only non-None values
         fields = {}
         if first_name is not None:
@@ -156,67 +157,95 @@ Returns:
     
     @mcp.tool()
     async def contact_bulk_create(contacts: List[dict]) -> Optional[dict]:
-        """Bulk create up to 100 contacts in your Apollo CRM.
+        """
+        Bulk create up to 100 contacts.
 
-See docs/tools/contacts.md for detailed documentation and examples.
+        More efficient than one-by-one creation. Existing contacts (matched by email)
+        returned in existing_contacts but NOT updated.
 
-Args:
-            contacts: List of contact dictionaries (max 100), each containing:
+        Args:
+            contacts: List of contact dicts (max 100), each with:
                      - first_name (required)
                      - last_name (required)
-                     - email (optional but recommended for deduplication)
+                     - email (optional, recommended for deduplication)
                      - organization_name, title, label_names, etc. (optional)
-    
-                     Example:
-                     [
-                       {
-                         "first_name": "John",
-                         "last_name": "Doe",
-                         "email": "john@example.com",
-                         "title": "CEO",
-                         "organization_name": "Example Corp",
-                         "label_names": ["Hot Leads"]
-                       },
-                       ...
-                     ]
 
-Returns:
-            Dict with:
-            - 'created_contacts': Array of newly created contacts
-            - 'existing_contacts': Array of contacts that already existed
-            Or None on error..."""
+        Returns:
+            {created_contacts, existing_contacts} or None on error
+
+        Reference:
+            https://docs.apollo.io/reference/create-contacts-bulk
+        """
         result = await apollo_client.contact_bulk_create(contacts=contacts)
         return result.model_dump() if result else None
     
     @mcp.tool()
     async def contact_bulk_update(contacts: List[dict]) -> Optional[dict]:
-        """Bulk update up to 100 contacts in your Apollo CRM.
+        """
+        Bulk update up to 100 contacts.
 
-See docs/tools/contacts.md for detailed documentation and examples.
+        More efficient than one-by-one updates. Only provided fields updated.
+        IMPORTANT: label_names REPLACES all lists for each contact.
 
-Args:
-            contacts: List of contact dictionaries (max 100), each containing:
+        Args:
+            contacts: List of contact dicts (max 100), each with:
                      - id (required) - Apollo contact ID
                      - Any fields to update (first_name, last_name, email, title, etc.)
-    
-                     Example:
-                     [
-                       {
-                         "id": "contact_id_1",
-                         "title": "Senior CEO",
-                         "label_names": ["Hot Leads", "Q1 2024"]
-                       },
-                       {
-                         "id": "contact_id_2",
-                         "email": "newemail@example.com"
-                       },
-                       ...
-                     ]
 
-Returns:
-            Dict with 'contacts' array of updated contacts, or None on error
-    
+        Returns:
+            {contacts: [updated contacts]} or None on error
+
         Reference:
-            https://docs.apollo.io/reference/update-contacts-bulk"""
+            https://docs.apollo.io/reference/update-contacts-bulk
+        """
         result = await apollo_client.contact_bulk_update(contacts=contacts)
         return result.model_dump() if result else None
+
+    @mcp.tool()
+    async def contact_add_to_list(
+        contact_ids: List[str],
+        label_name: str
+    ) -> Optional[dict]:
+        """
+        Add contacts to a list without losing existing labels (max 10). Master API key required.
+
+        Helper tool that safely merges new label with current labels. Solves label replacement
+        problem - contact_update/contact_bulk_update REPLACE all labels, this tool preserves them.
+
+        Args:
+            contact_ids: Contact IDs to add (max 10)
+            label_name: List name (auto-created if doesn't exist)
+
+        Returns:
+            {updated_contacts, found_ids, not_found_ids, total_requested}
+        """
+        result = await apollo_client.contact_add_to_list(
+            contact_ids=contact_ids,
+            label_name=label_name
+        )
+        return result
+    
+    @mcp.tool()
+    async def contact_remove_from_list(
+        contact_ids: List[str],
+        label_name: str
+    ) -> Optional[dict]:
+        """
+        Remove contacts from a list without affecting other labels (max 10). Master API key required.
+
+        Helper tool that safely removes specified label while preserving all other labels.
+        Solves label replacement problem by fetching current labels, removing target label,
+        and updating with remaining labels.
+
+        Args:
+            contact_ids: Contact IDs to remove (max 10)
+            label_name: List name to remove contacts from
+
+        Returns:
+            {updated_contacts, found_ids, not_found_ids, total_requested}
+        """
+        result = await apollo_client.contact_remove_from_list(
+            contact_ids=contact_ids,
+            label_name=label_name
+        )
+        return result
