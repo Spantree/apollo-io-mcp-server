@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "apollo-io-uvx": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/Spantree/apollo-io-mcp-server.git",
+        "apollo-io-mcp-server",
+        "mcp"
+      ],
+      "env": {
+        "APOLLO_IO_API_KEY": "${env:APOLLO_IO_API_KEY}"
+      }
+    }
+  }
+}
