@@ -181,3 +181,4 @@ cython_debug/
 *.pyc
 __pycache__/
 .pytest_cache/
+.mcp.json
