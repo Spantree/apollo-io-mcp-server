@@ -28,7 +28,7 @@ echo "-----------------------------------"
 echo "Testing UV Project (Local Dev)"
 echo "-----------------------------------"
 
-cd test/projects/uv-project
+cd tests/projects/uv-project
 
 # Check config exists
 if [ -f ".mcp.json" ]; then
@@ -63,7 +63,7 @@ echo "-----------------------------------"
 echo "Testing UVX Project (Production)"
 echo "-----------------------------------"
 
-cd test/projects/uvx-project
+cd tests/projects/uvx-project
 
 # Check config exists
 if [ -f ".mcp.json" ]; then
