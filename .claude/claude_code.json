@@ -1,12 +1,11 @@
 {
   "mcpServers": {
-    "apollo-io-local": {
+    "apollo-io": {
       "command": "uv",
       "args": [
         "run",
-        "--directory",
-        "..",
-        "python",
+        "mcp",
+        "run",
         "server.py"
       ],
       "env": {
