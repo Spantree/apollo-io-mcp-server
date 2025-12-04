@@ -196,6 +196,9 @@ def mcp(
     # Store mcp globally for FastMCP CLI
     globals()['mcp'] = mcp_instance
 
+    # Run the MCP server (stdio)
+    mcp_instance.run()
+
 
 @app.callback(invoke_without_command=True)
 def default_command(
